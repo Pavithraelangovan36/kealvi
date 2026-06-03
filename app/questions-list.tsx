@@ -85,55 +85,81 @@ export default function QuestionsList({
   }
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-500">
-        {hydrated ? "Interactive ✓" : "Loading interactivity…"}
-      </p>
-
-      <div className="flex gap-2">
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="Ask a question…"
-          className="flex-1 rounded-md border px-3 py-2"
-        />
-        <button onClick={submit} className="rounded-md border px-4 py-2">
-          Ask
-        </button>
+    <div className="space-y-5">
+      {/* Ask box */}
+      <div className="rounded-2xl border bg-surface p-4 shadow-sm">
+        <div className="flex gap-2">
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+            placeholder="Ask a question…"
+            className="flex-1 rounded-xl border bg-background px-4 py-2.5 text-sm outline-none placeholder:text-muted focus:border-brand"
+          />
+          <button
+            onClick={submit}
+            className="rounded-xl bg-brand px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-strong"
+          >
+            Ask
+          </button>
+        </div>
       </div>
 
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search questions…"
-        className="w-full rounded-md border px-3 py-2"
-      />
+      {/* Search + hydration status */}
+      <div className="flex items-center gap-3">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search questions…"
+          className="w-full flex-1 rounded-xl border bg-surface px-4 py-2.5 text-sm outline-none placeholder:text-muted focus:border-brand"
+        />
+        <span className="shrink-0 text-xs text-muted">
+          {hydrated ? "Interactive ✓" : "Loading interactivity…"}
+        </span>
+      </div>
 
+      {/* Questions */}
       <ul className="space-y-3">
         {questions.map((q) => (
           <li
             key={q.id}
-            className="flex items-center gap-3 rounded-lg border p-3"
+            className="flex items-start gap-3 rounded-2xl border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md"
           >
             <button
               onClick={() => upvote(q.id)}
-              className="rounded-md border px-3 py-1 font-mono"
+              className="flex shrink-0 flex-col items-center gap-0.5 rounded-xl border px-3.5 py-2 text-brand transition-colors hover:border-brand hover:bg-brand-soft"
             >
-              ▲ {q.votes}
+              <span className="text-xs leading-none">▲</span>
+              <span className="text-sm font-semibold leading-none tabular-nums">
+                {q.votes}
+              </span>
             </button>
-            <span>{q.body}</span>
+            <div className="min-w-0 flex-1 pt-0.5">
+              <p className="leading-snug">{q.body}</p>
+              {q.author && (
+                <p className="mt-1.5 text-xs text-muted">{q.author}</p>
+              )}
+            </div>
           </li>
         ))}
       </ul>
 
+      {questions.length === 0 && (
+        <p className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted">
+          No questions yet — be the first to ask.
+        </p>
+      )}
+
       {hasMore && (
-        <button
-          onClick={loadMore}
-          disabled={loading}
-          className="rounded-md border px-4 py-2 disabled:opacity-50"
-        >
-          {loading ? "Loading…" : "Load more"}
-        </button>
+        <div className="flex justify-center">
+          <button
+            onClick={loadMore}
+            disabled={loading}
+            className="rounded-xl border bg-surface px-5 py-2.5 text-sm font-medium transition-colors hover:border-brand hover:text-brand disabled:opacity-50"
+          >
+            {loading ? "Loading…" : "Load more"}
+          </button>
+        </div>
       )}
     </div>
   );
