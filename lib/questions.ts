@@ -3,36 +3,46 @@ import { supabase } from "@/lib/supabase";
 export async function getQuestionsPage(offset: number, limit: number) {
   const { data, error } = await supabase
     .from("questions")
-    .select("id, body, author, created_at, votes(count)")
+    .select("*")
     .order("created_at", { ascending: false })
-    .range(offset, offset + limit); // inclusive → asks for limit + 1 rows
+    .range(offset, offset + limit);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("Supabase Error:", error);
+    throw new Error(error.message);
+  }
 
-  const rows = (data ?? []).map((q) => ({
-    id: q.id,
-    body: q.body,
-    author: q.author,
-    votes: q.votes?.[0]?.count ?? 0,
+  const rows = (data ?? []).map((q: any) => ({
+    id: q.poll_id,
+    body: q.question,
+    author: q.created_by,
+    votes: q.vote_count ?? 0,
   }));
 
-  const hasMore = rows.length > limit; // got the extra row? there's a next page
-  return { questions: rows.slice(0, limit), hasMore };
+  const hasMore = (data?.length ?? 0) > limit;
+
+  return {
+    questions: rows.slice(0, limit),
+    hasMore,
+  };
 }
 
-export async function searchQuestions(q: string, limit: number) {
+export async function searchQuestions(searchText: string, limit: number) {
   const { data, error } = await supabase
     .from("questions")
-    .select("id, body, author, created_at, votes(count)")
-    .textSearch("body", q, { type: "websearch", config: "english" })
+    .select("*")
+    .ilike("question", `%${searchText}%`)
     .limit(limit);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("Supabase Error:", error);
+    throw new Error(error.message);
+  }
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    body: row.body,
-    author: row.author,
-    votes: row.votes?.[0]?.count ?? 0,
+  return (data ?? []).map((row: any) => ({
+    id: row.poll_id,
+    body: row.question,
+    author: row.created_by,
+    votes: row.vote_count ?? 0,
   }));
 }

@@ -18,7 +18,13 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const { body, author } = await req.json();
+  const payload = await req.json();
+  const body = String(payload.body ?? "").trim();
+  const author = payload.author ? String(payload.author) : null;
+
+  if (!body) {
+    return Response.json({ error: "Question body is required." }, { status: 400 });
+  }
 
   const { data, error } = await supabase
     .from("questions")

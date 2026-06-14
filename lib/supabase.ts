@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Server-only client. The service role key is a password to the whole
-// database — it lives here, on the server, and never ships to the browser.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+console.log("SUPABASE URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
 export const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  supabaseUrl,
+  supabaseAnonKey
 );
